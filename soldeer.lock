@@ -1,0 +1,25 @@
+[[dependencies]]
+name = "a16z-halmos-cheatcodes"
+version = "0.1.0"
+git = "https://github.com/a16z/halmos-cheatcodes.git"
+rev = "6da4e692c357ba6d641a2e677a28298cac9f76ab"
+
+[[dependencies]]
+name = "create2-helpers"
+version = "0.5.0"
+url = "https://soldeer-revisions.s3.amazonaws.com/create2-helpers/0_5_0_13-05-2025_17:05:02_create2-helpers.zip"
+checksum = "2e68e7866282a2801318145d610ea6f8bc64f5a591e1b57a27dd7d49b7adad65"
+integrity = "a18fe8aa906f2840378580388d61d032095410791ce6dff1f9a86754a6755d44"
+
+[[dependencies]]
+name = "deterministic-proxy-factory"
+version = "0.1.4"
+url = "https://soldeer-revisions.s3.amazonaws.com/deterministic-proxy-factory/0_1_4_25-05-2025_18:32:24_proxy-factory.zip"
+checksum = "9782a1e18276c5e6eacc7766597512570cc7cefa9cda7ccf20ef06dff0ff20ab"
+integrity = "0dc238ebe186591151f13256df52bd86dd95029aff66011739facbc680e07305"
+
+[[dependencies]]
+name = "forge-std"
+version = "1.9.8"
+git = "https://github.com/foundry-rs/forge-std.git"
+rev = "60acb7aaadcce2d68e52986a0a66fe79f07d138f"

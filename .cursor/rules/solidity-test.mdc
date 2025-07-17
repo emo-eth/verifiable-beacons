@@ -1,0 +1,177 @@
+---
+description: Solidity test files
+globs: *.t.sol
+alwaysApply: false
+---
+
+# Solidity Tests
+
+## Philosophy
+
+-   Tests should be written according to the documented behavior of the contract, not the implementation. If you believe a test should pass based on the documentation you've read, do not fix the test to pass - raise the discrepancy between the documentation and the implementation to the user, and ask them to clarify or fix the discrepancy between the documentation and the implementation. E.g., if the struct says `xUsdDestination` is the address to mint to, but the implementation mints to `backingSource`, raise an issue. **Do not write tests that enshrine bugs**.
+
+## Test Structure & Naming
+
+-   Test names should follow the pattern `test_functionName{_success,_fail_MySpecificError}`
+-   Test happy path separately from sad path; explicitly test each error in its own test method
+-   When testing functions that take relatively simple user-input, fuzz the inputs by giving the test function arguments. Use `vm.bound` to restrict inputs as necessary
+-   Never make test instance variables public (e.g., never do `address public owner` in contracts that inherit from Test)
+
+## Address & Account Creation
+
+-   Always use `makeAddr("<descriptive string>")` when making dummy addresses to test against
+    -   Never do `address owner = address(0x01)`
+-   Always use `makeAccount("<descriptive string>")` when making dummy addresses that need to produce signatures
+    -   Access the underlying `address` with `myAccount.addr` and private key with `myAccount.key`
+    -   Since it is a struct, you must declare them like `Account memory myAccount`
+-   Use the test contract itself (`address(this)`) as the default owner of an ownable smart contract; this avoids unnecessary `vm.prank` calls
+
+## Error Testing
+
+-   Never use `vm.expectRevert()` without any data - always supply at least the 4-byte error selector
+-   When possible, supply entire revert data using `vm.expectRevert(abi.encodeWithSelector(MyContract.MyError.selector, ...args...))`
+-   Use `abi.encodeCall()` when appropriate for encoding function calls
+
+## Event Testing
+
+-   Always test events using `expectEmit`
+
+## Signature Testing
+
+-   If a method requires a signature and you are testing the success case, do not pass in dummy bytes for the signature
+-   You must recreate the digest and sign it to generate a valid signature yourself
+-   Never create a standalone separate helper contract when working with signed data or storage, because signature validity is determined by the verifying contract, and storage is scoped per contract address
+
+## Dependencies & Imports
+
+-   Prefer Solady for dependencies over OpenZeppelin
+    -   Solady's default implementations differ from OpenZeppelin (e.g., ERC20 includes Permit by default)
+    -   Do not assume implementations of common standards have the same limited feature set as OpenZeppelin
+-   Import `console2` from `forge-std/Test.sol` when logging is necessary or requested
+-   When accessing Forge Cheatcode structs, `import { VmSafe } from "forge-std/Vm.sol"` and access with `Vm\{,Safe\}.StructName`
+
+## Contract Design Patterns
+
+-   If you need access to internal functions or variables, extend the contract you are testing with public methods to access those variables or methods
+    -   Do not try to access them via helper contracts or direct storage access using namespaced storage - this is not possible, and you will fail
+-   Do pull out re-used helper contracts like `MockERC20` or `MyContractHelper` into their own files
+-   Do not use `mockCall` unless instructed
+-   Modularize tests logic when possible, and minimize local variables to avoid stack-to-deep errors when running coverage reports
+
+## Specific Technical Patterns
+
+-   When testing functions in libraries that might revert, ALWAYS wrap the library call in an external call within the test contract and call it with `this.myHelper(...)`
+    -   Otherwise, the test will fail because the revert needs to happen at a lower depth than the `vm.expectRevert` call
+-   When using EIP-7201 Namespaced Storage Layouts, use `$` as the storage variable (e.g., `MyStorage storage $ = MyStorageLib.getStorage()`)
+    -   Never try to access namespaced storage from within the test contract. This will not work, because it will read the storage from the test contract, and not the contract you are trying to test.
+    -   This should only be relevant when creating helper "sub-classes" of contracts to access storage outside of normal contract logic. If you think you need to use it otherwise, you are probably wrong, and shouldn't.
+    -   Never try to access the storage of the contract you are testing from within other contracts, eg, the test contract itself or helper contracts.
+-   Implementation contracts for upgradeable contracts should always disable initializers (if one doesn't, please bring it up and flag it as extremely important until it fixed). **This means you cannot call `initialize` or `reinitialize` on an implementation contract you've just deployed - they must be called via a proxy contract.**
+    -   Do not `MyContract t = new MyContract(); t.reinitialize(...);` - this will fail.
+
+## General Guidelines
+
+-   Believe compiler errors over your own intuition
+    -   E.g., if it says "Data location must be storage, memory, or calldata" - fix the syntax according to the error rather than assuming you are missing an import
+
+## Solidity Gotchas
+
+-   If a contract inherits a method, you cannot specify its selector using the inheriting definition. I.E. `MyContractB.myFunctionA.selector` is not valid if `MyContractB` inherits from `MyContractA` which defines `myFunctionA`. That means you must always specify `MyContractA.myFunctionA{.selector}` when using things like `abi.encodeCall`, `abi.encodeWithSelector` etc.
+
+## Forge Test Gotchas
+
+-   `vm.prank` changes the caller of **the very next** external call that is not a `Vm` cheatcode
+    -   An external call is any call to a contract that is not the current contract or any call to a `public` or `external` function of the current contract invoked via the `this` keyword, e.g., `this.myFunction(...)`
+    -   This means, for example, **you cannot query for external variables** when constructing, e.g., calldata or revert data when using a single `vm.prank`, e.g., you cannot do `vm.prank(user); vm.expectRevert(abi.encodeWithSelector(MyContract.MyError.selector, user, myContract.getRelevantVariable())); mycontract.myFunction(...)` - the "prank" is wasted on the `getRelevantVariable` call. Retrieve relevant variables _before_ pranking. Prefer this over using `vm.startPrank` - see the next entry.
+-   `vm.expectRevert` applies to **the very next external call**. It must revert. You cannot query for external variables, because Forge will expect those calls to revert instead of the ones you care about. E.g., you cannot do `vm.expectRevert(...); myContract.myFunction(myContract.getRelevantVariable(), ...)` - this will fail because Forge will check the `getRelevantVariable` call for a revert instead of the `myFunction` call. This is why it is always better to retrieve relevant variables _before_ pranking.
+
+# Mutation Testing
+
+## Gambit Mutation Testing Summary
+
+Gambit performs mutation testing on Solidity code by systematically applying specific mutations to test how robust your test suite is. Here's what each mutation type does:
+
+## **AssignmentMutation**
+
+-   **Target**: Assignment statements (`x = value`)
+-   **Mutation**: Replaces the right-hand side value with different constants
+-   **Replacements**:
+    -   For boolean types: `true` ↔ `false`
+    -   For numeric literals: `(-1)`, `0`, `1`
+    -   For other types: `0`, `(-1)`, `1`, `true`, `false`
+-   **Test Focus**: Ensures tests catch when assignment logic is broken
+
+## **BinaryOpMutation**
+
+-   **Target**: Binary operations (`a + b`, `a - b`, etc.)
+-   **Mutation**: Changes arithmetic operators between `+`, `-`, `*`, `/`, `%`, `**`
+-   **Test Focus**: Ensures tests detect when mathematical operations are incorrectly changed
+
+## **DeleteExpressionMutation**
+
+-   **Target**: Expression statements (function calls, assignments, etc.)
+-   **Mutation**: Replaces the entire expression with `assert(true)`
+-   **Test Focus**: Ensures tests catch when important expressions are removed or bypassed
+
+## **ElimDelegateMutation**
+
+-   **Target**: `delegatecall` function calls
+-   **Mutation**: Changes `delegatecall` to `call`
+-   **Test Focus**: Ensures tests detect when delegate call behavior is changed (important for proxy patterns)
+
+## **FunctionCallMutation**
+
+-   **Target**: Function calls with arguments
+-   **Mutation**: Currently disabled/empty implementation
+-   **Test Focus**: Would test function call behavior changes
+
+## **IfStatementMutation**
+
+-   **Target**: If statement conditions
+-   **Mutation**: Changes condition to `true` or `false`
+-   **Test Focus**: Ensures tests catch when conditional logic is broken
+
+## **RequireMutation**
+
+-   **Target**: `require()` function calls
+-   **Mutation**: Changes the first argument to `true` or `false`
+-   **Test Focus**: Ensures tests detect when validation logic is bypassed
+
+## **SwapArgumentsFunctionMutation**
+
+-   **Target**: Function calls with multiple arguments
+-   **Mutation**: Currently disabled/empty implementation
+-   **Test Focus**: Would test argument order sensitivity
+
+## **SwapArgumentsOperatorMutation**
+
+-   **Target**: Binary operations with non-commutative operators (`-`, `/`, `%`, `**`, `>`, `<`, `>=`, `<=`, `<<`, `>>`)
+-   **Mutation**: Swaps left and right operands
+-   **Test Focus**: Ensures tests catch when operand order matters
+
+## **UnaryOperatorMutation**
+
+-   **Target**: Unary operations (`++x`, `x++`, `--x`, `x--`, `~x`)
+-   **Mutation**: Changes unary operators to other valid unary operators
+-   **Test Focus**: Ensures tests detect when increment/decrement/bitwise operations are changed
+
+## **DeleteEmitMutation**
+
+-   **Target**: `emit` statements
+-   **Mutation**: Replaces emit statement with `assert(true)`
+-   **Test Focus**: Ensures tests catch when event emissions are removed
+
+## Writing Tests for Mutation Testing
+
+When writing tests for a Solidity codebase that will undergo mutation testing, focus on:
+
+1. **Edge cases** - Test boundary conditions that mutations might expose
+2. **Validation logic** - Ensure `require()` statements are properly tested
+3. **Mathematical operations** - Test arithmetic operations thoroughly
+4. **State changes** - Verify assignments and state modifications
+5. **Conditional logic** - Test all branches of if statements
+6. **Event emissions** - Verify events are emitted correctly
+7. **Delegate calls** - Test proxy/delegate call behavior
+8. **Expression evaluation** - Ensure expressions have meaningful side effects
+
+The goal is to write tests that will **fail** when mutations are applied, proving your test suite can detect these types of code changes.
