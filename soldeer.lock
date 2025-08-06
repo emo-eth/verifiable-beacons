@@ -13,13 +13,20 @@ integrity = "a18fe8aa906f2840378580388d61d032095410791ce6dff1f9a86754a6755d44"
 
 [[dependencies]]
 name = "deterministic-proxy-factory"
-version = "0.1.4"
-url = "https://soldeer-revisions.s3.amazonaws.com/deterministic-proxy-factory/0_1_4_25-05-2025_18:32:24_proxy-factory.zip"
-checksum = "9782a1e18276c5e6eacc7766597512570cc7cefa9cda7ccf20ef06dff0ff20ab"
-integrity = "0dc238ebe186591151f13256df52bd86dd95029aff66011739facbc680e07305"
+version = "0.1.7"
+url = "https://soldeer-revisions.s3.amazonaws.com/deterministic-proxy-factory/0_1_7_23-07-2025_19:28:15_deterministic-proxy-factory.zip"
+checksum = "582d150e4121a39d7711bcbb48f54649345fa1af57c5f00a3745e5f8149c3f17"
+integrity = "0dc51336d2d678dfc3bdd856ed512ea7695adcb79cce8144bc1cec9458b55ac2"
 
 [[dependencies]]
 name = "forge-std"
 version = "1.9.8"
 git = "https://github.com/foundry-rs/forge-std.git"
 rev = "60acb7aaadcce2d68e52986a0a66fe79f07d138f"
+
+[[dependencies]]
+name = "solady"
+version = "0.1.23"
+url = "https://soldeer-revisions.s3.amazonaws.com/solady/0_1_23_28-06-2025_06:50:48_solady.zip"
+checksum = "e8f594a2696dab8138f1f1cfa93c0509fa6a5b73cef11b709bbdfa9852268987"
+integrity = "7db571166909e31f70c1e66d1c9c31e499398d14e7f59073ae09d4938d42f984"
