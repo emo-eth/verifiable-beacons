@@ -36,6 +36,9 @@ contract BeaconRelayer {
     /// @dev The `newOwner` cannot be the zero address.
     error NewOwnerIsZeroAddress();
 
+    /// @dev The relayer was not able to retrieve a implementation from the beacon
+    error UnableToRetrieveImplementation();
+
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                           EVENTS                           */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -56,6 +59,12 @@ contract BeaconRelayer {
     /// @dev `keccak256(bytes("OwnershipTransferred(address,address)"))`.
     uint256 private constant _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE =
         0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0;
+
+    uint256 private constant IMPLEMENTATION_FUNCTION_SELECTOR = 0x5c60da1b;
+    uint256 private constant UNABLE_TO_RETRIEVE_IMPLEMENTATION_ERROR_SELECTOR = 0x18d3f1bc;
+    uint256 private constant NEW_BEACON_HAS_NO_CODE_ERROR_SELECTOR = 0x130ba40d;
+    uint256 private constant UNAUTHORIZED_ERROR_SELECTOR = 0x82b42900;
+    uint256 private constant NEW_OWNER_IS_ZERO_ADDRESS_ERROR_SELECTOR = 0x7448fbae;
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                          STORAGE                           */
@@ -107,7 +116,7 @@ contract BeaconRelayer {
         assembly {
             newImplementation := shr(96, shl(96, newImplementation)) // Clean the upper 96 bits.
             if iszero(extcodesize(newImplementation)) {
-                mstore(0x00, 0x6d3e283b) // `NewImplementationHasNoCode()`.
+                mstore(0x00, NEW_BEACON_HAS_NO_CODE_ERROR_SELECTOR) // `NewImplementationHasNoCode()`.
                 revert(0x1c, 0x04)
             }
             // get the current "counter" - how many times the implementation has been set
@@ -137,18 +146,40 @@ contract BeaconRelayer {
     function implementation() public view returns (address result) {
         /// @solidity memory-safe-assembly
         assembly {
-            result := sload(_BEACON_RELAYER_BEACON_SLOT)
+            // load the beacon address
+            let _beacon := shr(96, shl(96, sload(_BEACON_RELAYER_BEACON_SLOT)))
+            // put implementation function selector in memory
+            mstore(0x00, IMPLEMENTATION_FUNCTION_SELECTOR)
+            // staticcall, don't copy return data
+            let success := staticcall(gas(), _beacon, 0x1c, 0x04, 0x00, 0x00)
+            // check if the call was successful and if the return data is not empty
+            if or(iszero(success), iszero(returndatasize())) {
+                // revert with UnableToRetrieveImplementation error if the call was not successful
+                // or the return data is empty
+                mstore(0x00, UNABLE_TO_RETRIEVE_IMPLEMENTATION_ERROR_SELECTOR)
+                revert(0x1c, 0x04)
+            }
+            // copy the return data to memory and load the result
+            returndatacopy(0x00, 0x00, returndatasize())
+            result := mload(0x00)
         }
     }
 
-    function counter() public view returns (uint256 result) {
+    function counter() external view returns (uint256 result) {
         /// @solidity memory-safe-assembly
         assembly {
             result := shr(160, sload(_BEACON_RELAYER_BEACON_SLOT))
         }
     }
 
-    function implementationAndCounter() public view returns (address result, uint256 _counter) {
+    function beacon() external view returns (address result) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := sload(_BEACON_RELAYER_BEACON_SLOT)
+        }
+    }
+
+    function beaconAndCounter() external view returns (address result, uint256 _counter) {
         /// @solidity memory-safe-assembly
         assembly {
             result := sload(_BEACON_RELAYER_BEACON_SLOT)
@@ -174,7 +205,7 @@ contract BeaconRelayer {
         /// @solidity memory-safe-assembly
         assembly {
             if iszero(shl(96, newOwner)) {
-                mstore(0x00, 0x7448fbae) // `NewOwnerIsZeroAddress()`.
+                mstore(0x00, NEW_OWNER_IS_ZERO_ADDRESS_ERROR_SELECTOR) // `NewOwnerIsZeroAddress()`.
                 revert(0x1c, 0x04)
             }
         }
@@ -192,7 +223,7 @@ contract BeaconRelayer {
         assembly {
             // If the caller is not the stored owner, revert.
             if iszero(eq(caller(), sload(_BEACON_RELAYER_OWNER_SLOT))) {
-                mstore(0x00, 0x82b42900) // `Unauthorized()`.
+                mstore(0x00, UNAUTHORIZED_ERROR_SELECTOR) // `Unauthorized()`.
                 revert(0x1c, 0x04)
             }
         }
