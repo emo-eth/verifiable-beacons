@@ -1,0 +1,46 @@
+[
+    {
+        "filename": "src/VerifiableUpgradeableBeacon.sol",
+        "sourceroot": ".",
+        "solc_remappings": [
+            "forge-std/=dependencies/forge-std-1.9.8/src/",
+            "create2-helpers/=dependencies/create2-helpers-0.5.0/src/",
+            "a16z-halmos-cheatcodes/=dependencies/a16z-halmos-cheatcodes-0.1.0/src/",
+            "deterministic-proxy-factory/=dependencies/deterministic-proxy-factory-0.3.1/src/",
+            "solady/=dependencies/solady-0.1.23/src/"
+        ]
+    },
+    {
+        "filename": "src/VerifiableBeaconRegistry.sol",
+        "sourceroot": ".",
+        "solc_remappings": [
+            "forge-std/=dependencies/forge-std-1.9.8/src/",
+            "create2-helpers/=dependencies/create2-helpers-0.5.0/src/",
+            "a16z-halmos-cheatcodes/=dependencies/a16z-halmos-cheatcodes-0.1.0/src/",
+            "deterministic-proxy-factory/=dependencies/deterministic-proxy-factory-0.3.1/src/",
+            "solady/=dependencies/solady-0.1.23/src/"
+        ]
+    },
+    {
+        "filename": "src/Constants.sol",
+        "sourceroot": ".",
+        "solc_remappings": [
+            "forge-std/=dependencies/forge-std-1.9.8/src/",
+            "create2-helpers/=dependencies/create2-helpers-0.5.0/src/",
+            "a16z-halmos-cheatcodes/=dependencies/a16z-halmos-cheatcodes-0.1.0/src/",
+            "deterministic-proxy-factory/=dependencies/deterministic-proxy-factory-0.3.1/src/",
+            "solady/=dependencies/solady-0.1.23/src/"
+        ]
+    },
+    {
+        "filename": "src/VerifiableBeaconRelayer.sol",
+        "sourceroot": ".",
+        "solc_remappings": [
+            "forge-std/=dependencies/forge-std-1.9.8/src/",
+            "create2-helpers/=dependencies/create2-helpers-0.5.0/src/",
+            "a16z-halmos-cheatcodes/=dependencies/a16z-halmos-cheatcodes-0.1.0/src/",
+            "deterministic-proxy-factory/=dependencies/deterministic-proxy-factory-0.3.1/src/",
+            "solady/=dependencies/solady-0.1.23/src/"
+        ]
+    }
+]

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2
 pragma solidity ^0.8.4;
 
 /// @notice This is a modified version of the UpgradeableBeacon contract from Solady.
@@ -22,7 +22,7 @@ pragma solidity ^0.8.4;
 /// This optimized bytecode is compiled via Yul and is not verifiable via Etherscan
 /// at the time of writing. For best gas efficiency, deploy the Yul version.
 /// The Solidity version is provided as an interface / reference.
-contract UpgradeableBeacon {
+contract VerifiableUpgradeableBeacon {
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                       CUSTOM ERRORS                        */

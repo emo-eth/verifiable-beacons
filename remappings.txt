@@ -1,7 +1,0 @@
-a16z-halmos-cheatcodes-0.1.0/=dependencies/a16z-halmos-cheatcodes-0.1.0/
-create2-helpers-0.5.0/=dependencies/create2-helpers-0.5.0/
-deterministic-proxy-factory-0.1.4/=dependencies/deterministic-proxy-factory-0.1.4/
-deterministic-proxy-factory-0.1.7/=dependencies/deterministic-proxy-factory-0.1.7/
-forge-std-1.9.8/=dependencies/forge-std-1.9.8/
-solady-0.1.23/=dependencies/solady-0.1.23/
-solady-0.1.9/=dependencies/solady-0.1.9/

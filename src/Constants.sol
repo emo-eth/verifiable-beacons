@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma solidity ^0.8.20;
+
+bytes32 constant VERIFIABLE_UPGRADEABLE_BEACON_EXTCODEHASH = bytes32(0);
+bytes32 constant VERIFIABLE_UPGRADEABLE_BEACON_INITCODEHASH = bytes32(0);
+bytes32 constant VERIFIABLE_BEACON_RELAYER_EXTCODEHASH = bytes32(0);
+bytes32 constant VERIFIABLE_BEACON_RELAYER_INITCODEHASH = bytes32(0);
+
+bytes32 constant VERIFIABLE_BEACON_REGISTRANT_ROLE = bytes32(uint256(1 << 69));

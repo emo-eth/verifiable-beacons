@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2
 pragma solidity ^0.8.4;
 
 import { Test } from "forge-std/Test.sol";
-import { BeaconRelayer } from "src/BeaconRelayer.sol";
+import { VerifiableBeaconRelayer } from "src/VerifiableBeaconRelayer.sol";
 
 contract MockBeacon {
 
@@ -34,7 +34,7 @@ contract MockImplementation {
 
 contract BeaconRelayerTest is Test {
 
-    BeaconRelayer public beaconRelayer;
+    VerifiableBeaconRelayer public beaconRelayer;
     MockBeacon public mockBeacon;
     MockImplementation public mockImplementation;
     MockImplementation public mockImplementation2;
@@ -54,7 +54,7 @@ contract BeaconRelayerTest is Test {
         mockBeacon = new MockBeacon(address(mockImplementation));
 
         vm.prank(owner);
-        beaconRelayer = new BeaconRelayer(owner, address(mockBeacon));
+        beaconRelayer = new VerifiableBeaconRelayer(owner, address(mockBeacon));
     }
 
     // ============================================================================
@@ -63,7 +63,7 @@ contract BeaconRelayerTest is Test {
 
     function test_constructor_success() public {
         vm.prank(owner);
-        BeaconRelayer newRelayer = new BeaconRelayer(owner, address(mockBeacon));
+        VerifiableBeaconRelayer newRelayer = new VerifiableBeaconRelayer(owner, address(mockBeacon));
 
         assertEq(newRelayer.owner(), owner);
         assertEq(newRelayer.beacon(), address(mockBeacon));
@@ -71,7 +71,8 @@ contract BeaconRelayerTest is Test {
     }
 
     function test_constructor_withZeroOwner() public {
-        BeaconRelayer newRelayer = new BeaconRelayer(address(0), address(mockBeacon));
+        VerifiableBeaconRelayer newRelayer =
+            new VerifiableBeaconRelayer(address(0), address(mockBeacon));
 
         assertEq(newRelayer.owner(), address(0));
         assertEq(newRelayer.beacon(), address(mockBeacon));
@@ -80,8 +81,8 @@ contract BeaconRelayerTest is Test {
 
     function test_constructor_withZeroBeacon() public {
         vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.NewBeaconHasNoCode.selector));
-        BeaconRelayer newRelayer = new BeaconRelayer(owner, address(0));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.NewBeaconHasNoCode.selector));
+        VerifiableBeaconRelayer newRelayer = new VerifiableBeaconRelayer(owner, address(0));
     }
 
     // ============================================================================
@@ -104,13 +105,13 @@ contract BeaconRelayerTest is Test {
         MockBeacon newBeacon = new MockBeacon(address(mockImplementation2));
 
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.Unauthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.Unauthorized.selector));
         beaconRelayer.upgradeTo(address(newBeacon));
     }
 
     function test_upgradeTo_fail_NewBeaconHasNoCode() public {
         vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.NewBeaconHasNoCode.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.NewBeaconHasNoCode.selector));
         beaconRelayer.upgradeTo(address(0x1234));
     }
 
@@ -146,14 +147,14 @@ contract BeaconRelayerTest is Test {
         beaconRelayer.upgradeTo(address(badBeacon));
 
         vm.expectRevert(
-            abi.encodeWithSelector(BeaconRelayer.UnableToRetrieveImplementation.selector)
+            abi.encodeWithSelector(VerifiableBeaconRelayer.UnableToRetrieveImplementation.selector)
         );
         beaconRelayer.implementation();
     }
 
     function test_implementation_fail_BeaconHasNoCode() public {
         vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.NewBeaconHasNoCode.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.NewBeaconHasNoCode.selector));
         beaconRelayer.upgradeTo(address(0x1234));
     }
 
@@ -235,13 +236,15 @@ contract BeaconRelayerTest is Test {
         address newOwner = makeAddr("newOwner");
 
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.Unauthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.Unauthorized.selector));
         beaconRelayer.transferOwnership(newOwner);
     }
 
     function test_transferOwnership_fail_NewOwnerIsZeroAddress() public {
         vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.NewOwnerIsZeroAddress.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(VerifiableBeaconRelayer.NewOwnerIsZeroAddress.selector)
+        );
         beaconRelayer.transferOwnership(address(0));
     }
 
@@ -256,7 +259,7 @@ contract BeaconRelayerTest is Test {
 
     function test_renounceOwnership_fail_Unauthorized() public {
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.Unauthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.Unauthorized.selector));
         beaconRelayer.renounceOwnership();
     }
 
@@ -347,7 +350,7 @@ contract BeaconRelayerTest is Test {
         MockBeacon newBeacon = new MockBeacon(address(mockImplementation2));
 
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.Unauthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.Unauthorized.selector));
         beaconRelayer.upgradeTo(address(newBeacon));
     }
 
@@ -363,7 +366,7 @@ contract BeaconRelayerTest is Test {
         beaconRelayer.upgradeTo(address(invalidBeacon));
 
         vm.expectRevert(
-            abi.encodeWithSelector(BeaconRelayer.UnableToRetrieveImplementation.selector)
+            abi.encodeWithSelector(VerifiableBeaconRelayer.UnableToRetrieveImplementation.selector)
         );
         beaconRelayer.implementation();
     }
@@ -373,7 +376,7 @@ contract BeaconRelayerTest is Test {
         address nonExistentContract = address(0x1234567890123456789012345678901234567890);
 
         vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(BeaconRelayer.NewBeaconHasNoCode.selector));
+        vm.expectRevert(abi.encodeWithSelector(VerifiableBeaconRelayer.NewBeaconHasNoCode.selector));
         beaconRelayer.upgradeTo(nonExistentContract);
     }
 

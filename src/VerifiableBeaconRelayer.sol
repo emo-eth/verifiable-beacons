@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2
 pragma solidity ^0.8.4;
 
 /// @notice Upgradeable beacon for ERC1967 beacon proxies.
@@ -21,14 +21,11 @@ pragma solidity ^0.8.4;
 /// This optimized bytecode is compiled via Yul and is not verifiable via Etherscan
 /// at the time of writing. For best gas efficiency, deploy the Yul version.
 /// The Solidity version is provided as an interface / reference.
-contract BeaconRelayer {
+contract VerifiableBeaconRelayer {
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                       CUSTOM ERRORS                        */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
-
-    /// @dev The new implementation is not a deployed contract.
-    error NewBeaconHasNoCode();
 
     /// @dev The caller is not authorized to perform the operation.
     error Unauthorized();
