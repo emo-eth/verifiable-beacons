@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.4;
 
 /// @notice Upgradeable beacon for ERC1967 beacon proxies.
@@ -26,6 +26,9 @@ contract VerifiableBeaconRelayer {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                       CUSTOM ERRORS                        */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @dev The beacon has no code.
+    error NewBeaconHasNoCode();
 
     /// @dev The caller is not authorized to perform the operation.
     error Unauthorized();

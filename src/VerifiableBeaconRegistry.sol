@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
 import { Ownable } from "solady/auth/Ownable.sol";
@@ -54,8 +54,6 @@ contract VerifiableBeaconRegistry {
     error BeaconRelayerExtcodehashMismatch();
     /// @notice Thrown when a beacon implementation extcodehash does not match the trusted value
     error BeaconImplementationExtcodehashMismatch();
-    /// @notice Thrown when a beacon has no code
-    error BeaconHasNoCode();
     /// @notice Thrown when a beacon is not a beacon relayer
     error NotBeaconRelayer();
 

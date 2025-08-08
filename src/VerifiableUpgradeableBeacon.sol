@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.4;
 
 /// @notice This is a modified version of the UpgradeableBeacon contract from Solady.
