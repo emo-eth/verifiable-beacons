@@ -1,6 +1,6 @@
 # Verifiable Beacons
 
-![VerifiableBeacons](./media/verifiable_beacons.png)
+<img src="./media/verifiable_beacons.png" alt="Verifiable Beacons" width="500" />
 
 Smart contracts and a small registry for deterministically deployed ERC-1967 beacon proxies with onchain verification against trusted beacon/relayer code and live state.
 
